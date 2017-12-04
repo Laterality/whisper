@@ -1,0 +1,38 @@
+{
+  "name": "whisper",
+  "version": "1.0.0",
+  "description": "SSE based real time messenger server compatible with mobile, web and etc.",
+  "main": "dist/app.js",
+  "scripts": {
+    "start": "node dist/app.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Laterality/whisper.git"
+  },
+  "author": "Latera",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Laterality/whisper/issues"
+  },
+  "homepage": "https://github.com/Laterality/whisper#readme",
+  "dependencies": {
+    "@types/morgan": "^1.7.35",
+    "@types/node": "^8.0.50",
+    "@types/uuid": "^3.4.3",
+    "express": "^4.16.2",
+    "morgan": "^1.9.0",
+    "typescript": "^2.6.1",
+    "uuid": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^4.0.39",
+    "@types/gulp": "^4.0.5",
+    "@types/gulp-mocha": "0.0.31",
+    "@types/gulp-typescript": "^2.13.0",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^4.3.1",
+    "gulp-typescript": "^3.2.3"
+  }
+}
