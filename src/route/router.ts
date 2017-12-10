@@ -2,6 +2,7 @@ import * as express from "express";
 
 import * as chanPool from "../lib/channelPoolImpl";
 import * as connPool from "../lib/connPoolImpl";
+import * as mq from "../lib/mqImpl";
 import * as resHandler from "../lib/request-handler";
 import * as sse from "../lib/sse";
 import { broadcast } from "../lib/sse";
@@ -11,9 +12,13 @@ export const router = express.Router();
 export const sseApp		= new sse.SSEAcceptor();
 export const connections	= new connPool.ConnectionPoolImpl();
 export const channels		= new chanPool.ChannelPoolImpl();
+export const messages		= new mq.MQImpl();
 
 router.get("/connect", sseApp.sse((req: express.Request, res: sse.ISSEConnection, next: express.NextFunction) => {
 	const userId = req.query["userId"];
+	req.on("close", () => {
+		console.log("client disconnected");
+	});
 	res.id = userId;
 	connections.put(userId, res);
 	channels.putInto("default", res);
@@ -39,6 +44,16 @@ router.get("/connect", sseApp.sse((req: express.Request, res: sse.ISSEConnection
 	channels.put(channelId, []);
 	resHandler.response(
 		res,
+		new resHandler.ApiResponse(
+			resHandler.ApiResponse.CODE_OK,
+			resHandler.ApiResponse.RESULT_OK));
+})
+.post("channel/delete", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	const channelId = req.body["channelId"];
+
+	channels.remove(channelId);
+	resHandler.response(
+		res, 
 		new resHandler.ApiResponse(
 			resHandler.ApiResponse.CODE_OK,
 			resHandler.ApiResponse.RESULT_OK));
@@ -96,6 +111,8 @@ router.get("/connect", sseApp.sse((req: express.Request, res: sse.ISSEConnection
 	const dateSent	= req.body["dateSent"];
 	const channel	= channels.get(to);
 
+	messages.put(to, msg);
+
 	if (!channel) {
 		console.log("[router] channel not found");
 		return;
@@ -112,4 +129,19 @@ router.get("/connect", sseApp.sse((req: express.Request, res: sse.ISSEConnection
 		new resHandler.ApiResponse(
 			resHandler.ApiResponse.CODE_OK,
 			resHandler.ApiResponse.RESULT_OK));
+})
+.get("/channel/:p1/messages", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+	const channelId = req.params["p1"];
+	const msgs = messages.get(channelId);
+
+	resHandler.response(
+		res,
+		new resHandler.ApiResponse(
+			resHandler.ApiResponse.CODE_OK,
+			resHandler.ApiResponse.RESULT_OK,
+			"",
+			{
+				name: "messages",
+				obj: msgs,
+			}));
 });

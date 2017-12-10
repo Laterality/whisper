@@ -38,6 +38,12 @@ export interface IConnectionPool {
 	remove: (userId: string) => void;
 }
 
+export interface IMessageQueue {
+	get: (channelId: string) => ISSEMessage[];
+	put: (channelId: string, msg: ISSEMessage) => void;
+	clear: (channelId: string) => void;
+}
+
 export class SSEAcceptor {
 
 	// accept sse connection
