@@ -7,4 +7,5 @@ public interface IPresenter {
 	public void onRefreshChannels();
 	public void onCreateChannel(String channelId);
 	public void onChangeChannel(String channelId);
+	public void onJoinChannel(String channelId);
 }

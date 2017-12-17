@@ -3,13 +3,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-public class CreateChannelDialog extends JDialog implements ActionListener{
+public class InputDialog extends JDialog implements ActionListener{
 
 	private final JTextField mFieldChannelId;
 	private final JButton mBtnOk;
 	private final OnOKListener mListener;
 
-	public CreateChannelDialog(OnOKListener listener) {
+	public InputDialog(OnOKListener listener) {
 
 		mListener = listener;
 

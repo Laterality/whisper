@@ -5,57 +5,26 @@
  * Date: 2017-11-22
  */
 import * as express from "express";
+import { ISSEConnection, ISSEMessage } from "./interfaces";
+import * as user from "./user";
 
 // export interface IChannel {
 // 	id: string;
 // 	users: ISSEConnection[];
 // }
 
-export interface ISSEMessage {
-	from: string;
-	to: string;
-	msg: string;
-	dateSent: Date;
-}
-
-export interface ISSEConnection extends express.Response{
-	id: string;
-	sendMsg: (data: ISSEMessage) => void;
-}
-
-export interface IChannelPool {
-	put: (channelId: string, group: ISSEConnection[]) => void;
-	get: (channelId: string) => ISSEConnection[] | undefined;
-	getIds: () => string[];
-	putInto: (channelId: string, user: ISSEConnection) => void;
-	remove: (channelId: string) => void;
-	removeUser: (channelId: string, userId: string) => void;
-}
-
-export interface IConnectionPool {
-	put: (userId: string, conn: ISSEConnection) => void;
-	get: (userId: string) => ISSEConnection | undefined;
-	remove: (userId: string) => void;
-}
-
-export interface IMessageQueue {
-	get: (channelId: string) => ISSEMessage[];
-	put: (channelId: string, msg: ISSEMessage) => void;
-	clear: (channelId: string) => void;
-}
-
 export class SSEAcceptor {
 
 	// accept sse connection
 	public sse(cb: (req: express.Request, res: ISSEConnection, next: express.NextFunction) => void) {
-	
+		
 		return (req: express.Request, res: express.Response, next: express.NextFunction) => {
 	
 			console.log("[sse] connected");
 			res.writeHead(200, {
 				"Content-Type": "text/event-stream",
 				"Cache-Control": "no-cache",
-				"Connection": "Keep-alive",
+				"Connection": "keep-alive",
 			});
 		
 			(res as any)["sendMsg"] = (data: ISSEMessage) => {

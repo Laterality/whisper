@@ -22,6 +22,7 @@ public class Model {
 	private Client mClient;
 	private final Gson mGson;
 	private Service mService;
+	private String userId;
 
 
 	public Model() {
@@ -40,7 +41,8 @@ public class Model {
 		}
 	}
 
-	public void connect(String userId, OnMessageReceivedListener listener) {
+	public void connect(String userId, OnMessageReceivedListener listener, OnConnectedListener connectedListener) {
+		this.userId = userId;
 		new Thread(() -> {
 			mClient = ClientBuilder.newBuilder()
 
@@ -48,9 +50,13 @@ public class Model {
 
 			WebTarget target = mClient.target(BASE_URL + "/connect?userId=" + userId);
 
-			EventInput eventInput = target.request().get(EventInput.class);
-
-			while (!eventInput.isClosed()) {
+			EventInput eventInput = null;
+			while (true) {
+				
+				if (eventInput == null) {
+					eventInput = target.request().get(EventInput.class);
+				}
+				
 				final InboundEvent inboundEvent = eventInput.read();
 				if (inboundEvent == null) {
 					break;
@@ -58,9 +64,22 @@ public class Model {
 
 //				System.out.println(inboundEvent.getName() + "; " +
 //						inboundEvent.readData(String.class));
-					if (listener != null) {
+				if (listener != null) {
 					String msg = inboundEvent.readData(String.class);
-					listener.onReceived(mGson.fromJson(msg, Message.class));
+					if (msg.equals("connected")) {
+						if (connectedListener != null) {
+							connectedListener.onConnected();
+						}
+					}
+					else {
+						listener.onReceived(mGson.fromJson(msg, Message.class));
+					}
+				}
+				try {
+					Thread.sleep(1);
+				}
+				catch (Exception e) {
+					break;
 				}
 			}
 		}).start();
@@ -90,7 +109,7 @@ public class Model {
 
 	public String[] refreshChannels() {
 		try {
-			Call<ChannelsResponseDto> call = mService.getChannelList();
+			Call<ChannelsResponseDto> call = mService.retrieveChannelsUserBelong(userId);
 
 			Response<ChannelsResponseDto> res = call.execute();
 
@@ -139,9 +158,31 @@ public class Model {
 		}
 		return null;
 	}
+	
+	public void joinChannel(String channelId) {
+		try {
+			JoinChannelRequestDto jcr = new JoinChannelRequestDto();
+			jcr.userId = this.userId;
+			jcr.channelId = channelId;
+			Call<BasicResponseDto> call = mService.joinChannel(jcr);
+			
+			Response<BasicResponseDto> res = call.execute();
+			
+			if (res.isSuccessful() && res.body().message.equals("OK")) {
+				System.out.println("Joined to " + channelId); 
+			}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public interface OnMessageReceivedListener {
 		public void onReceived(Message msg);
+	}
+	
+	public interface OnConnectedListener {
+		public void onConnected();
 	}
 
 	public interface Service {
@@ -157,5 +198,11 @@ public class Model {
 
 		@GET("channel/{channelId}/messages")
 		public Call<MessagesResponseDto> retrieveMessages(@Path("channelId") String channelId);
+		
+		@GET("user/{userId}/channels")
+		public Call<ChannelsResponseDto> retrieveChannelsUserBelong(@Path("userId") String userId);
+		
+		@POST("channel/join")
+		public Call<BasicResponseDto> joinChannel(@Body JoinChannelRequestDto dto);
 	}
 }

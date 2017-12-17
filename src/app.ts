@@ -3,6 +3,7 @@ import * as express from "express";
 import * as logger from "morgan";
 
 import { config } from "./config";
+import { AbstractChannel } from "./lib/channel";
 import * as chanPool from "./lib/channelPoolImpl";
 import * as connPool from "./lib/connPoolImpl";
 import * as resHandler from "./lib/request-handler";
@@ -18,7 +19,7 @@ app.use(logger("dev"));
 app.use(router);
 
 // create default channel
-channels.put("default", []);
+channels.put(new AbstractChannel("default"));
 
 // 404 Handler
 app.use((req: express.Request, res: express.Response) => {

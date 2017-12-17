@@ -14,22 +14,23 @@ public class View implements ActionListener, KeyListener, IView, ListSelectionLi
 	private final JFrame mFrame;
 	private final JTextArea mTARecords;
 	private final JList<String> mListMessages;
+	private final JList<String> mListChannels;
 	private final JTextField mFieldInput;
 	private final JTextField mFieldUserId;
 	private final JButton mBtnSend;
 	private final JButton mBtnConnect;
+	private final JButton mBtnRefreshChannels;
+	private final JButton mBtnCreateChannel;
+	private final JButton mBtnJoinChannel;
 	private final JScrollPane mSpForTa;
+	private final JScrollPane mSpForChannels;
 	private final JPanel mPanelBottom;
 	private final JPanel mPanelChannels;
 	private final JPanel mPanelConnect;
-	private final DefaultListModel<String> mMessageListModel;
-
-	private final JScrollPane mSpForChannels;
 	private final JPanel mPanelChannelsBottom;
-	private final JList mListChannels;
-	private final JButton mBtnRefreshChannels;
-	private final JButton mBtnCreateChannel;
+	private final DefaultListModel<String> mMessageListModel;
 	private final DefaultListModel<String> mListModel;
+
 
 	
 	public View(IPresenter presenter) {
@@ -38,16 +39,19 @@ public class View implements ActionListener, KeyListener, IView, ListSelectionLi
 		mPresenter.setView(this);
 //		mPresenter.connect();
 		
-		mTARecords = new JTextArea();
-		mMessageListModel = new DefaultListModel<>();
-		mListMessages = new JList<>(mMessageListModel);
-		mFieldInput = new JTextField();
-		mBtnSend = new JButton("Send");
-		mPanelBottom = new JPanel(new BorderLayout());
+		mTARecords			= new JTextArea();
+		mMessageListModel	= new DefaultListModel<>();
+		mListMessages		= new JList<>(mMessageListModel);
+		mFieldInput			= new JTextField();
+		mBtnSend			= new JButton("Send");
+		mPanelBottom		= new JPanel(new BorderLayout());
+		mBtnJoinChannel		= new JButton("Join");
+		
 		mListMessages.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
 		mFieldInput.addKeyListener(this);
 		mBtnSend.addActionListener(this);
+		mBtnJoinChannel.addActionListener(this);
 		
 //		mSpForTa = new JScrollPane(mTARecords);
 		mSpForTa = new JScrollPane(mListMessages);
@@ -139,10 +143,15 @@ public class View implements ActionListener, KeyListener, IView, ListSelectionLi
 			mPresenter.connect();
 		}
 		else if (e.getSource().equals(mBtnCreateChannel)) {
-			new CreateChannelDialog((input) -> {
+			new InputDialog((input) -> {
 				mPresenter.onCreateChannel(input);
 			});
 
+		}
+		else if (e.getSource().equals(mBtnJoinChannel)) {
+			new InputDialog((input) -> {
+				mPresenter.onJoinChannel(input);
+			});
 		}
 		
 	}

@@ -22,17 +22,20 @@ public class PresenterImpl implements IPresenter {
 		String userId = mView.getUserIdInput();
 		mModel.connect(userId, (msg) -> {
 			mView.appendText(String.format("%s: %s", msg.from, msg.msg));
+		}, () -> {
+			mView.setConnectButtonEnabled(false);
+			mView.setUserIdFieldEnabled(false);
+			mConnected = true;
+			onJoinChannel("default");
+			onRefreshChannels();
 		});
-		mView.setConnectButtonEnabled(false);
-		mView.setUserIdFieldEnabled(false);
-		mConnected = true;
 	}
 
 	@Override
 	public void onSend() {
 		if (!mConnected) { return; }
 		String input = mView.getInput();
-		if (input.matches("^/")) {
+		if (input.matches("^\\/")) {
 			String[] args = input.split("/")[0].split(" ");
 			if (args[0].equals("chadd")) {
 				// add channel
@@ -73,10 +76,17 @@ public class PresenterImpl implements IPresenter {
 	public void onChangeChannel(String channelId) {
 		mView.clearMessages();
 		Message[] messages = mModel.getMessages(channelId);
-
-		for (Message m : messages) {
-			mView.appendText(String.format("%s: %s", m.from, m.msg));
+		
+		if (messages != null) {
+			for (Message m : messages) {
+				mView.appendText(String.format("%s: %s", m.from, m.msg));
+			}
 		}
+	}
+
+	@Override
+	public void onJoinChannel(String channelId) {
+		mModel.joinChannel(channelId);
 	}
 
 }

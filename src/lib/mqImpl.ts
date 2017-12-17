@@ -5,10 +5,10 @@
  * Author: Jin-woo Shin
  * Date: 2017-12-09
  */
+import { IMessageQueue, ISSEMessage } from "./interfaces";
 import * as sse from "./sse";
-import { ISSEMessage } from "./sse";
 
-export class MQImpl implements sse.IMessageQueue {
+export class MQImpl implements IMessageQueue {
 
 	private queue: any = {};
 	
@@ -23,7 +23,7 @@ export class MQImpl implements sse.IMessageQueue {
 		}
 	}
 
-	public put(channelId: string, msg: sse.ISSEMessage) {
+	public put(channelId: string, msg: ISSEMessage) {
 		const q: ISSEMessage[] = this.queue[channelId];
 		if (!q) {
 			this.queue[channelId] = [];
