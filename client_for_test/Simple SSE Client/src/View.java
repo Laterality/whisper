@@ -62,16 +62,17 @@ public class View implements ActionListener, KeyListener, IView, ListSelectionLi
 		mPanelChannels = new JPanel(new BorderLayout());
 
 		mListModel = new DefaultListModel<>();
-		mListChannels = new JList(mListModel);
+		mListChannels = new JList<>(mListModel);
 		mBtnRefreshChannels = new JButton("Refresh");
 		mBtnCreateChannel = new JButton("Create");
-		mPanelChannelsBottom = new JPanel(new GridLayout(2,1));
+		mPanelChannelsBottom = new JPanel(new GridLayout(3,1));
 
 		mListChannels.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		mListChannels.addListSelectionListener(this);
 
 		mPanelChannelsBottom.add(mBtnRefreshChannels);
 		mPanelChannelsBottom.add(mBtnCreateChannel);
+		mPanelChannelsBottom.add(mBtnJoinChannel);
 
 		mBtnRefreshChannels.addActionListener(this);
 		mBtnCreateChannel.addActionListener(this);

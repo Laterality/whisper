@@ -70,6 +70,7 @@ public class PresenterImpl implements IPresenter {
 	@Override
 	public void onCreateChannel(String channelId) {
 		mModel.createChannel(channelId);
+		onRefreshChannels();
 	}
 
 	@Override
@@ -87,6 +88,7 @@ public class PresenterImpl implements IPresenter {
 	@Override
 	public void onJoinChannel(String channelId) {
 		mModel.joinChannel(channelId);
+		onRefreshChannels();
 	}
 
 }

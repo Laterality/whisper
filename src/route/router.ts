@@ -24,9 +24,9 @@ router.get("/connect", sseApp.sse((req: express.Request, res: ISSEConnection, ne
 	const userId = req.query["userId"];
 	req.on("close", () => {
 		console.log("client disconnected");
+		const userDisconnected = users.get(userId);
+		userDisconnected.quitAll();
 		users.remove(userId);
-
-		// TODO: remove disconnected user from channels user has
 
 	});
 	res.write("data: connected\n\n");
@@ -53,9 +53,13 @@ router.get("/connect", sseApp.sse((req: express.Request, res: ISSEConnection, ne
 		));
 })
 .post("/channel/create", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-	const channelId = req.body["channelId"];
-
-	channels.put(new AbstractChannel(channelId));
+	const channelId		= req.query["channelId"];
+	const owner			= req.query["owner"];
+	const user			= users.get(owner);
+	const newChannel	= new AbstractChannel(channelId);
+	channels.put(newChannel);
+	user.addChannel(newChannel);
+	
 	resHandler.response(
 		res,
 		new resHandler.ApiResponse(
@@ -90,15 +94,7 @@ router.get("/connect", sseApp.sse((req: express.Request, res: ISSEConnection, ne
 			resHandler.ApiResponse.RESULT_FAIL,
 			"not found(channel)"));
 	}
-	// if (!userConnection) {
-	// 	console.log("user " + userId + " doesn't exist");
-	// 	return resHandler.response(
-	// 		res,
-	// 		new resHandler.ApiResponse(
-	// 			resHandler.ApiResponse.CODE_NOT_FOUND,
-	// 			resHandler.ApiResponse.RESULT_FAIL,
-	// 			"not found(user)"));
-	// }
+
 	// add user into channel
 	if (channel && user) {
 		channel.join(user);
@@ -219,5 +215,4 @@ router.get("/connect", sseApp.sse((req: express.Request, res: ISSEConnection, ne
 				name: "channels",
 				obj: channelIds,
 			}));
-
 });

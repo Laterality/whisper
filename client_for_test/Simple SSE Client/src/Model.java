@@ -1,7 +1,13 @@
-import com.google.gson.Gson;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
+
 import org.glassfish.jersey.media.sse.EventInput;
 import org.glassfish.jersey.media.sse.InboundEvent;
 import org.glassfish.jersey.media.sse.SseFeature;
+
+import com.google.gson.Gson;
+
 import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
@@ -10,10 +16,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
-
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.WebTarget;
+import retrofit2.http.Query;
 
 public class Model {
 
@@ -127,7 +130,7 @@ public class Model {
 	public boolean createChannel(String channelId) {
 		try {
 
-			Call<BasicResponseDto> call = mService.createChannel(channelId);
+			Call<BasicResponseDto> call = mService.createChannel(channelId, userId);
 
 			Response<BasicResponseDto> res = call.execute();
 
@@ -194,7 +197,7 @@ public class Model {
 		public Call<BasicResponseDto> sendMessage(@Body Message msg);
 
 		@POST("/channel/create")
-		public Call<BasicResponseDto> createChannel(@Body String channelId);
+		public Call<BasicResponseDto> createChannel(@Query("channelId") String channelId, @Query("owner") String owner);
 
 		@GET("channel/{channelId}/messages")
 		public Call<MessagesResponseDto> retrieveMessages(@Path("channelId") String channelId);

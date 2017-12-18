@@ -35,6 +35,12 @@ export class AbstractUser {
 		this.channelsBelong.push(channel);
 	}
 
+	public quitAll() {
+		for (const c of this.channelsBelong) {
+			c.exit(this);
+		}
+	}
+
 	public send(msg: ISSEMessage): void {
 		if (this.connection) {
 			this.connection.sendMsg(msg);
