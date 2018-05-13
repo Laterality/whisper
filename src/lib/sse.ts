@@ -19,11 +19,12 @@ export class SSEAcceptor {
 	public sse(cb: (req: express.Request, res: ISSEConnection, next: express.NextFunction) => void) {
 		
 		return (req: express.Request, res: express.Response, next: express.NextFunction) => {
-	
+			
 			console.log("[sse] connected");
+			req.socket.setTimeout(Number.MAX_SAFE_INTEGER);
 			res.writeHead(200, {
 				"Content-Type": "text/event-stream",
-				"Cache-Control": "no-cache",
+					"Cache-Control": "no-cache",
 				"Connection": "keep-alive",
 			});
 		
